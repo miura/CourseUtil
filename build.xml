@@ -5,9 +5,8 @@
 	<property name="build" location="bin" />
 	<property name="dist"  location="dist" />
 
-	<property name="pluginsDir"  location="$basedir/../../imagej/plugins/" />
-	<property name="FIJIpluginsDir"  location= "D:\\Fiji.app\\plugins\\" />
-	<property name="ImageJDevpluginsDir"  location= "D:\\gitrepo\\imagej\\plugins\\" />	
+	<property name="pluginsDir"  location="${basedir}/../imagej/plugins/" />
+	<property name="fijipluginsDir"  location="/Applications/Fiji.app/plugins/" />		
 	<property name="jarname"  location= "EMBL_sampleimages.jar" />
 
 	<property name="user.name" value="Kota Miura" >
@@ -27,7 +26,6 @@
 			</manifest>
 		</jar>
 		<copy file="${jarname}" toDir="${pluginsDir}" />
-		<copy file="${jarname}" toDir="${FIJIpluginsDir}" />
-		<copy file="${jarname}" toDir="${ImageJDevpluginsDir}" />		
+		<copy file="${jarname}" toDir="${fijipluginsDir}" />	
 	</target>
 </project>
