@@ -1,6 +1,7 @@
-.externalToolBuilders/
-.classpath
-.project
-.settings/
-bin/
-.DS_Store
+/.externalToolBuilders/
+/.classpath
+/.project
+/.settings/
+/target/
+*.swp
+/.DS_Store
