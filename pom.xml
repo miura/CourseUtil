@@ -15,7 +15,7 @@
 	<artifactId>EMBL_sampleimages</artifactId>
 
 	<name>plugins/EMBL_sampleimages.jar</name>
-	<description></description>
+	<description>Sample images used in Kota Miura's ImageJ courses at the EMBL</description>
 
 	<dependencies>
 		<dependency>
