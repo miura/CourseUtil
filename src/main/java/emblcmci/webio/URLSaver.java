@@ -1,4 +1,4 @@
-package emblcmci;
+package emblcmci.webio;
 
 import ij.io.DirectoryChooser;
 import ij.plugin.PlugIn;

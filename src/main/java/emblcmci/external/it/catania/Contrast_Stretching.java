@@ -1,12 +1,11 @@
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Undo;
-import ij.WindowManager;
+package emblcmci.external.it.catania;
+import ij.*;
 import ij.io.*;
 import ij.process.*;
 import ij.gui.*;
 import ij.text.*;
 import java.awt.*;
+import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import ij.plugin.frame.*;
@@ -14,35 +13,28 @@ import java.io.*;
 import java.util.*;
 import javax.swing.event.*;
 
-/** This plugin implements the power law operator
+/** This plugin implements the contrast stretching operator
 @author Bosco Camillo-BS degree in Computer Science 
         Advisor: Prof. Battiato Sebastiano
         Organization: University of Catania - ITALY
 */
-public class Power_Law extends PlugInFrame implements ActionListener, AdjustmentListener, TextListener
+public class Contrast_Stretching extends PlugInFrame implements ActionListener
 {
 
         private Font monoFont = new Font("Monospaced", Font.PLAIN, 12);
         private Font sans = new Font("SansSerif", Font.BOLD, 12);
-        private float valueGamma=0.3f;
-        private float valueScale=1.0f;
-        private TextField gammaField;
-        private TextField scaleField;  
-        private ValueViewer viewer;
-        private PowerPlot plot;
-        private Button draw;
+        private ValueViewerCS viewer;
+        private CSPlot plot;
         private Button preview;
         private Button apply;
         private long time;
         private ImageProcessor ip;  
         private ImagePlus imp;
         private int type;
-        private Label sliderLab;
-        private Scrollbar slider;
         
-        public Power_Law() 
+        public Contrast_Stretching() 
         {
-		super("Power Law Transform");
+		super("Contrast Stretching Transform");
                 setResizable(false);
 	}
         public void run(String arg) 
@@ -65,7 +57,7 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 if((type==imp.GRAY16)||(type==imp.GRAY32))
                 {
                   IJ.beep();
-                  IJ.error("Error","Power Law requires an image of type\n \n8-bit grayscale\n8-bit indexed color\nRGB color\n");
+                  IJ.error("Error","Contrast Stretching requires an image of type\n \n8-bit grayscale\n8-bit indexed color\nRGB color\n");
                   return;
                 }
                 
@@ -89,7 +81,7 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 
                 // Panel title
                 Panel paneltitle = new Panel();
-                Label title= new Label("Power-law Transform", Label.CENTER);
+                Label title= new Label("Contrast Stretching Transform", Label.CENTER);
 		title.setFont(sans);
                 paneltitle.add(title);
                 c.gridx = 1;
@@ -102,7 +94,7 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 add(paneltitle);
                 
                 // Plot
-                plot = new PowerPlot(valueGamma,valueScale);
+                plot = new CSPlot();
                 c.gridy = y++;
                 c.insets = new Insets(10, 10, 0, 10);
                 gridbag.setConstraints(plot, c);
@@ -133,8 +125,9 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 global.add(mouseLabel);
                 Panel panelButtonList=new Panel();
                 Button list = new Button("List");
-                viewer=new ValueViewer(plot.getLUT());
+                viewer=new ValueViewerCS(plot.getLUT());
                 list.addActionListener(viewer);
+                plot.setViewer(viewer);
                 GridBagLayout gridbag_list = new GridBagLayout();
 		GridBagConstraints c_list = new GridBagConstraints();
 		panelButtonList.setLayout(gridbag_list);
@@ -166,50 +159,26 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 gridbag_save.setConstraints(panelButtonSave,c_save);
                 panelButtonSave.add(save);
                 global2.add(panelButtonSave);
-                save.addActionListener(new SaveGIF((Canvas)plot));
+                save.addActionListener(new SaveGIFCS((Canvas)plot));
                 panelSave.add(global2);
                 add(panelSave);
                 
-                // panel gamma
-                Panel panelGamma = new Panel();
-                Label gammaLab = new Label("Gamma Value: ");
-                gammaLab.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                panelGamma.add(gammaLab);
-                int digits=1;
-                gammaField = new TextField(IJ.d2s(valueGamma, digits),3);
-                gammaField.addTextListener(this);
-                panelGamma.add(gammaField);
-                
-                
-                // panel scale
-                Panel panelScale = new Panel();
-                Label scaleLab = new Label("Scale Value: ");
-                scaleLab.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                panelScale.add(scaleLab);
-                digits=0;
-                scaleField = new TextField(IJ.d2s(valueScale, digits),3);
-                scaleField.addTextListener(this);
-                panelScale.add(scaleField);
-                
-                // panel Draw
-                Panel panelDraw = new Panel();
-                draw = new Button("Draw");
-                draw.addActionListener(this);
-                panelDraw.add(draw);
-                
-                // panel Preview & Apply
-                Panel panelButtons = new Panel();
+                // panel Preview
+                Panel panelPreview = new Panel();
                 preview = new Button("Preview");
                 preview.addActionListener(this);
-                panelButtons.add(preview);
+                panelPreview.add(preview);
+                
+                // panel Apply
+                Panel panelApply = new Panel();
                 apply = new Button("Apply");
                 apply.addActionListener(this);
-                panelButtons.add(apply);
+                panelApply.add(apply);
                 
                 // panel Info & Help
                 Panel panelInfoHelp = new Panel();
                 Button ih = new Button("Help & Info");
-                ih.addActionListener(new InfoHelpViewer());
+                ih.addActionListener(new InfoHelpViewerCS());
                 panelInfoHelp.add(ih);
                 
                 // panel container
@@ -219,28 +188,12 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
                 c.gridy = 1;
                 c.insets = new Insets(10, 0, 0, 10);
                 gridbag.setConstraints(container, c);
-                container.add(panelGamma);
-                container.add(panelScale);
-                container.add(panelDraw);
-                container.add(panelButtons);
+                container.add(new Panel());
+                container.add(panelPreview);
+                container.add(panelApply);
                 container.add(panelInfoHelp);
+                container.add(new Panel());
                 add(container);
-                
-                // adding slider's label
-                sliderLab = new Label("Gamma: 0.3",Label.CENTER);
-                c.gridy = 2;
-                c.insets = new Insets(0, 10, 0, 4);
-                gridbag.setConstraints(sliderLab, c);
-                add(sliderLab);
-                
-                // adding slider
-                slider = new Scrollbar(Scrollbar.HORIZONTAL, 30, 1, 1, 341);
-                slider.addAdjustmentListener(this);
-                c.gridy = 3;
-                c.insets = new Insets(3, 20, 20, 5);
-                gridbag.setConstraints(slider, c);
-                slider.setUnitIncrement(1);
-                add(slider);
                 
                 // - - - - - - - - - - - - - - - - - -
                 pack();
@@ -251,65 +204,43 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
         public void actionPerformed(ActionEvent e)
         {
            Object source=e.getSource();
-           if(source==draw)
-           {
-             if(checkGamma()&&checkScale())
-             {
-                plot.findLUT(valueGamma,valueScale);
-                viewer.setLUT(plot.getLUT());
-                if(valueGamma>1)
-                {
-                  Float f=new Float(IJ.d2s(valueGamma,1));
-                  int i=(int)(10.0f*(valueGamma-1.0f)+100f);
-                  slider.setValue(i);
-                  sliderLab.setText("Gamma: "+IJ.d2s(valueGamma,1));  
-                }
-                else 
-                {
-                  Float f=new Float(IJ.d2s(valueGamma,2));
-                  int i=(int)(f.floatValue()*100);
-                  slider.setValue(i);
-                  sliderLab.setText("Gamma: "+IJ.d2s(valueGamma,2));  
-                }
-             }
-           }
            if(source==preview)
            {
               //IJ.showMessage(imp.getTitle());
-              RaiseToPower rp=new RaiseToPower(imp, plot.getLUT(), imp.getTitle());
+              CSTransform cst=new CSTransform(imp, plot.getLUT(), imp.getTitle());
               time=System.currentTimeMillis();
               ImagePlus processed=null;
               if(type==ImagePlus.GRAY8)
               {
-                processed=rp.createProcessed8bitImage();                  
+                processed=cst.createProcessed8bitImage();                  
               }
               else if(type==ImagePlus.COLOR_256)
                    {
-                    processed=rp.createProcessed8bitImage();                   
+                    processed=cst.createProcessed8bitImage();                   
                    }
                    else if(type==ImagePlus.COLOR_RGB)
                         {
-                          processed=rp.createProcessedRGBImage();                         
+                          processed=cst.createProcessedRGBImage();                         
                         }
               time=System.currentTimeMillis()-time;
               double time_sec=time/1000.0;
-              PreviewImage prew=new PreviewImage(processed,time_sec);
+              PreviewImageCS prew=new PreviewImageCS(processed,time_sec);
            }
            if(source==apply)
            {
               Undo.setup(Undo.COMPOUND_FILTER, imp);
-              RaiseToPower rp=new RaiseToPower(imp, plot.getLUT(), imp.getTitle());
+              CSTransform cst=new CSTransform(imp, plot.getLUT(), imp.getTitle());
               if(type==ImagePlus.GRAY8)
               {
-                rp.createProcessed8bitImage(imp);
+                cst.createProcessed8bitImage(imp);
               }
               else if(type==ImagePlus.COLOR_256)
                    {
-                    rp.createProcessed8bitImage(imp);                   
+                    cst.createProcessed8bitImage(imp);                   
                    }
                    else if(type==ImagePlus.COLOR_RGB)
                         {
-                          rp.createProcessedRGBImage(imp);
+                          cst.createProcessedRGBImage(imp);
                         }
               imp.updateAndRepaintWindow();
               imp.changes=true;
@@ -317,100 +248,13 @@ public class Power_Law extends PlugInFrame implements ActionListener, Adjustment
               close();
            }
         }
-        
-        private boolean checkGamma()
-        {
-          if(valueGamma<=0)
-          {  
-            IJ.error("Error","You must enter a value greater\n than zero for gamma");    
-            return false;
-          }
-          if(valueGamma>25)
-          {  
-            IJ.error("Error","You must enter a value less \nor equal than 25 for gamma");    
-            return false;
-          }
-          String value=java.lang.Float.toString(valueGamma);
-          if(value.indexOf('.')!=-1)
-          {
-
-            if(value.substring(value.indexOf('.')).length()>3)
-            {
-              IJ.error("Error","You must enter a value with not\n more than two decimal places");
-              return false;              
-            }
-          }
-          return true;
-        }
-        
-        private boolean checkScale()
-        {
-          if(valueScale<=0)
-          {  
-            IJ.error("Error","You must enter a value greater than zero for scale factor");    
-            return false;
-          }
-          return true;           
-        }
-        
-        public void adjustmentValueChanged(AdjustmentEvent e) 
-        {
-          int sliderValue = slider.getValue();
-          
-          if(sliderValue<=100)
-          {
-            valueGamma=sliderValue/100.0f;
-          }
-          else valueGamma=((sliderValue-100)/10.0f)+1.0f;
-          
-          if(checkScale())
-          {
-                plot.findLUT(valueGamma,valueScale);
-                viewer.setLUT(plot.getLUT());
-                if(valueGamma>=1)
-                {
-                  sliderLab.setText("Gamma: "+IJ.d2s(valueGamma,1));  
-                }
-                else sliderLab.setText("Gamma: "+IJ.d2s(valueGamma,2));  
-                gammaField.setText(new Float(valueGamma).toString());
-          }
-        }
-        
-        public void textValueChanged(TextEvent e) 
-        {
-           TextComponent tc = (TextComponent)e.getSource();
-           if(tc==gammaField)
-           {
-             try
-             {
-              valueGamma=Float.parseFloat(gammaField.getText());  
-              //IJ.showMessage("valueGamma: "+valueGamma);                
-             }
-             catch(NumberFormatException exp)
-             {
-               IJ.error("Number Format Exception","You must enter a number");  
-             }
-           }
-           if(tc==scaleField)
-           {
-             try
-             {
-              valueScale=Float.parseFloat(scaleField.getText());  
-              //IJ.showMessage("valueScale: "+valueScale);                
-             }
-             catch(NumberFormatException exp)
-             {
-               IJ.error("Number Format Exception","You must enter a number");  
-             }
-           }
-        }
 }
 
-class ValueViewer implements ActionListener
+class ValueViewerCS implements ActionListener
 {
   private int[] lut;
     
-  public ValueViewer(int[] l)
+  public ValueViewerCS(int[] l)
   {
     lut=l;
   }
@@ -419,7 +263,7 @@ class ValueViewer implements ActionListener
   {
     for(int i=0;i<256;i++)
     {
-      lut[i]=l[i];
+            lut[i]=l[i];
     }
   }
   
@@ -436,21 +280,20 @@ class ValueViewer implements ActionListener
   }
 }
 
-class InfoHelpViewer implements ActionListener
+class InfoHelpViewerCS implements ActionListener
 {
-  private String description="HELP ABOUT \"POWER LAW\"\n\n"+
-                                    "This plugin implements the exponential transform operator for image enhancement in the spatial domain.\n"+
-                                    "It is defined as follows:\n"+
-                                    "s=c*(r^gamma)\n"+
-                                    "where c and gamma are positive constants, r is the value of the input pixel and s is the corresponding value of the output pixel.\n"+
+  private String description="HELP ABOUT \"Contrast Stretching\"\n\n"+
+                                    "This plugin implements the contrast stretching operator for image enhancement in the spatial domain.\n"+
+                                    "It allows to enhance contrast of low-contrast images increasing their dynamic range.\n"+
+                                    "User can choose his/her preferred transform function simply modifying the location of two control points (r1, s1) and (r2, s2) which allow to change the shape of the transformation.\n"+
+                                    "There is only one important constraint: r1<=r2 and s1<=s2. It means that the transform function must be monotonically increasing: this condition preventes the creation of intensity artifacts in the processed image.\n"+
+                                    "A particular case of contrast stretching operator is the thresholding operator.\n"+
                                     "Here is a brief description of the steps to do:\n"+
-                                    "1) Choose your preferred float values for gamma (with 0 < gamma <=25) and c (scale factor) with c!=0 and c > 0;\n"+
-                                    "2) Click on the button \"Draw\" to draw the graph for the chosen parameters values;\n"+
-                                    "3) If you want, click on the button \"List\" to view the LUT values;\n"+
-                                    "4) Also the possibility to save the graph in GIF format is provided by clicking on the button \"Save\";\n"+
-                                    "5) Click on the button \"Preview\" to view as the image would be if it was processed according to the chosen transform curve;\n"+
-                                    "6) Click on the button \"Apply\" to definitively apply the current transform to the image;\n"+
-                                    "You can also draw the chosen curve using the slider which allows to select the gamma value.\n\n"+
+                                    "1) Change the control points in order to obtain your favourite LUT;\n"+
+                                    "2) If you want, click on the button \"List\" to view the LUT values;\n"+
+                                    "3) Also the possibility to save the graph in GIF format is provided by clicking on the button \"Save\";\n"+
+                                    "4) Click on the button \"Preview\" to view as the image would be if it was processed according to the chosen transform curve;\n"+
+                                    "5) Click on the button \"Apply\" to definitively apply the current transform to the image;\n\n"+
                                     "ABOUT THE AUTHOR\n\n"+
                                     "This plugin was implemented by Camillo Bosco under Professor Sebastiano Battiato's supervision.\n"+
                                     "It was a part of a project for the Multimedia Course (MSC Program in Computer Science) at University of Catania (ITALY)\n\n"+
@@ -466,16 +309,16 @@ class InfoHelpViewer implements ActionListener
   {
     StringBuffer sb = new StringBuffer();
     sb.append(description);
-    TextWindow tw = new TextWindow("About \"Power Law\"", sb.toString(), 700, 500);
+    TextWindow tw = new TextWindow("About \"Contrast Stretching Operator\"", sb.toString(), 700, 500);
     tw.show();
   }
 }
 
-class SaveGIF implements ActionListener
+class SaveGIFCS implements ActionListener
 {
   private Canvas c;
   
-  public SaveGIF(Canvas plot)
+  public SaveGIFCS(Canvas plot)
   {
     c=plot;
   }
@@ -486,14 +329,14 @@ class SaveGIF implements ActionListener
       Image image = c.createImage(r.width, r.height);
       Graphics g = image.getGraphics();
       c.paint(g);
-      ImagePlus img = new ImagePlus("graph",image);
+      ImagePlus img=new ImagePlus("graph",image);
       ImageConverter conv=new ImageConverter(img);
       conv.convertRGBtoIndexedColor(256);
       new FileSaver(img).saveAsGif();
   }  
 }
 
-class PowerPlot extends Canvas implements MouseMotionListener
+class CSPlot extends Canvas implements MouseMotionListener, MouseListener
 {
 	
 	private static final int WIDTH=255, HEIGHT=255;
@@ -501,14 +344,38 @@ class PowerPlot extends Canvas implements MouseMotionListener
 	private double max = 255;
 	private Label labMouse;
         private int[] y_values=new int[256];
-          
-	public PowerPlot(float g, float s) 
+        private int r1, r2, s1, s2;
+        private Ellipse2D ellisse1;
+        private Ellipse2D ellisse2;
+        private boolean firstBool=false;
+        private boolean secondBool=false;
+        private ValueViewerCS view;
+        
+	public CSPlot() 
         {
+                r1=96;
+                s1=32;
+                r2=160;
+                s2=224;
                 addMouseMotionListener(this);
+                addMouseListener(this);
                 setSize(WIDTH, HEIGHT);
                 //IJ.showMessage("width: "+getSize().width+" \nheight: "+getSize().height);
-                findLUT(g,s);
+                findLUT();
 	}
+        
+        public void setViewer(ValueViewerCS v)
+        {
+          view=v;
+        }
+        
+        public void setControlPoints(int x1,int y1,int x2,int y2)
+        {
+          r1=x1;
+          s1=y1;
+          r2=x2;
+          s2=y2;          
+        }
         
         public int[] getLUT()
         {
@@ -537,26 +404,40 @@ class PowerPlot extends Canvas implements MouseMotionListener
           g.setColor(Color.black);
           g.drawRect(0, 0, WIDTH, HEIGHT);
           g.setColor(Color.red);
+          Vector v=new Vector();
           for(int i=0;i<255;i++)
           {
-            int[] first_couple=coordsConverter(i,y_values[i]);
-            int[] second_couple=coordsConverter((i+1),y_values[i+1]);
-            g.drawLine(first_couple[0], first_couple[1], first_couple[0], first_couple[1]);
-            g.drawLine(second_couple[0], second_couple[1], second_couple[0], second_couple[1]);
-            approximationCurve(g, second_couple[0], second_couple[1], first_couple[0], first_couple[1]);             
+           int[] first_couple=coordsConverter(i,y_values[i]);
+           int[] second_couple=coordsConverter((i+1),y_values[i+1]);
+           g.drawLine(first_couple[0], first_couple[1], first_couple[0], first_couple[1]);
+           g.drawLine(second_couple[0], second_couple[1], second_couple[0], second_couple[1]);
+           approximation(g, second_couple[0], second_couple[1], first_couple[0], first_couple[1],v);
           }
+          int[] first_couple=coordsConverter(r1,s1);
+          int[] second_couple=coordsConverter(r2,s2);
+          Graphics2D g2=(Graphics2D)g;
+          g2.setColor(Color.blue);
+          ellisse1=new Ellipse2D.Double(first_couple[0]-3,first_couple[1]-3,6,6);
+          ellisse2=new Ellipse2D.Double(second_couple[0]-3,second_couple[1]-3,6,6);
+          g2.fill(ellisse1);
+          g2.fill(ellisse2);
+          g2.draw(ellisse1);
+          g2.draw(ellisse2);
+          g=(Graphics)g2;
+          g.setColor(Color.red);
         }
         
-        public void approximationCurve(Graphics g, int succ_x, int succ_y, int prev_x, int prev_y)
+        public void approximation(Graphics g, int succ_x, int succ_y, int prev_x, int prev_y, Vector v)
         {
           double hypo=Math.sqrt(Math.pow((prev_x-succ_x),2)+Math.pow((prev_y-succ_y),2));
           if(hypo > 1D)
           {
             int middle_x=(prev_x+succ_x)/2;
             int middle_y=(prev_y+succ_y)/2;
-            approximationCurve(g, succ_x, succ_y, middle_x, middle_y);
-            approximationCurve(g, prev_x, prev_y, middle_x, middle_y);
+            approximation(g, succ_x, succ_y, middle_x, middle_y, v);
+            approximation(g, prev_x, prev_y, middle_x, middle_y, v);
             g.drawLine(middle_x, middle_y, middle_x, middle_y);
+            v.addElement(new Point(middle_x,middle_y));
           }
         }
         
@@ -568,47 +449,117 @@ class PowerPlot extends Canvas implements MouseMotionListener
           return converted_coord;
         }
         
-        public void findLUT(float gamma, float scale)
+        public void findLUT()
         {
           int[] y_axis=new int[256];  
           
-          for(int i=0;i<256;i++)
+          if((r1==s1)&&(r2==s2))
           {
-            int processed = (int)(Math.pow((float)(i / 255F), gamma) * 255D);
-            processed=(int)((processed*scale));
-            if (processed > 255) processed = 255;
-            if (processed < 0) processed = 0;
-            y_axis[i]=processed;
+           for(int i=0;i<256;i++)
+           {
+             y_axis[i]=i;
+           } 
           }
+          else
+          {            
+            for(int i=0;i<=r1;i++)
+            {
+              y_axis[i]=findYCoordRect(i,0,0,r1,s1);
+            }
+            if(r1==r2)y_axis[r1]=s2;
+            else
+            {
+              for(int i=r1+1;i<=r2;i++)
+              {
+                y_axis[i]=findYCoordRect(i,r1,s1,r2,s2);
+              }              
+            }
+            for(int i=r2;i<=255;i++)
+            {
+                y_axis[i]=findYCoordRect(i,r2,s2,255,255);
+            }
+          }  
           setYValues(y_axis);
+          if(view!=null)view.setLUT(y_axis);
           repaint();          
+        }
+        
+        public int findYCoordRect(int x,int x0,int y0,int x1,int y1)
+        {
+          int y;
+          if(y0==y1)y=y1;
+          else if(x0==x1)y=y1;
+               else
+               {
+                 y=(int)((((float)(x-x0)/(x1-x0))*(y1-y0))+y0);
+               }
+          return y;
         }
         
         public void setYValues(int[] values)
         {
-          //String str="";
           for(int i=0;i<256;i++)
           {
             y_values[i]=values[i];
-            //str=str+"y_values["+i+"]= "+y_values[i]+"\n";            
           }
-          //IJ.showMessage(str);
         }
         
         public void mouseMoved(MouseEvent e)
         {
-          //IJ.showStatus("(x= "+e.getX()+"y= "+e.getY()+")");
           int x=e.getX();
           int y=e.getY();
+          if(ellisse1.contains(x,y))
+          {
+            firstBool=true;  
+          }
+          else 
+          {
+            firstBool=false;
+          }
+          if(ellisse2.contains(x,y))
+          {
+                 secondBool=true;  
+          }
+          else 
+          {
+            secondBool=false;          
+          }
           int[] cartes_coord=coordsConverter(x,y);
           labMouse.setText("("+cartes_coord[0]+" , "+cartes_coord[1]+")");
         }
         
-        public void mouseDragged(MouseEvent e){}  
+        public void mouseDragged(MouseEvent e)
+        {
+          int x=e.getX();
+          int y=e.getY();
+          int[] cartes_coord=coordsConverter(x,y);
+      
+          if(firstBool)
+          {
+            if(((cartes_coord[0]<=r2)&&(cartes_coord[1]<=s2))&&((cartes_coord[0]>=0)&&(cartes_coord[1]>=0))&&((cartes_coord[0]<=255)&&(cartes_coord[1]<=255)))
+            {
+              setControlPoints(cartes_coord[0],cartes_coord[1],r2,s2);
+              findLUT();  
+            }
+          }
+          if(secondBool)
+          {
+            if(((r1<=cartes_coord[0])&&(s1<=cartes_coord[1]))&&((cartes_coord[0]>=0)&&(cartes_coord[1]>=0))&&((cartes_coord[0]<=255)&&(cartes_coord[1]<=255)))
+            {
+              setControlPoints(r1,s1,cartes_coord[0],cartes_coord[1]);
+              findLUT();  
+            }
+          }
+        }
 
+        public void mousePressed(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
+        public void mouseClicked(MouseEvent e) {}          
 }
 
-class RaiseToPower
+class CSTransform
 {
       private ImagePlus imp;
       private ImageProcessor ip;
@@ -617,7 +568,7 @@ class RaiseToPower
       private int[] lut;
       private String title;        
       
-      public RaiseToPower(ImagePlus image, int[] l, String t) 
+      public CSTransform(ImagePlus image, int[] l, String t) 
       {
 	imp=image;
         ip=imp.getProcessor();
@@ -714,13 +665,13 @@ class RaiseToPower
       }
 }
 
-class PreviewImage implements ActionListener
+class PreviewImageCS implements ActionListener
 {
       private ImageCanvas canvas;
       private Panel panelTime;
       private ImagePlus im;
         
-      public PreviewImage(ImagePlus img, double time)
+      public PreviewImageCS(ImagePlus img, double time)
       {
         im=img;
         canvas=new ImageCanvas(im);

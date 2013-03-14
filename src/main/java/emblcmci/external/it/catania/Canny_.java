@@ -1,3 +1,4 @@
+package emblcmci.external.it.catania;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
@@ -8,7 +9,8 @@ import ij.process.ImageProcessor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import utility.Service;
+
+import emblcmci.external.it.catania.utility.Service;
 
 /**
  * This class computes the Canny operator in an image.

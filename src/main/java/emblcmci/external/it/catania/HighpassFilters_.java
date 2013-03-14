@@ -1,3 +1,4 @@
+package emblcmci.external.it.catania;
 import ij.*;
 import ij.process.ImageProcessor.*;
 import ij.process.*;
@@ -12,16 +13,15 @@ import ij.measure.Calibration;
 import ij.gui.*;
 import java.awt.*;
 
-public class BandControl_ implements PlugInFilter
+public class HighpassFilters_ implements PlugInFilter
 {
-    private int threshold_min, threshold_max;
+    private int threshold, order;
     private int M, N, size, w, h;
     private ImagePlus imp;
     private FHT fht;
     private ImageProcessor mask, ipFilter;
     private String filter;
     private boolean displayFilter;
-
 
     // method from PlugInFilter Interface
     public int setup(String arg, ImagePlus imp)
@@ -34,7 +34,7 @@ public class BandControl_ implements PlugInFilter
     public void run(ImageProcessor ip)
     {
         ip = imp.getProcessor();
-        if (showDialog(ip)) filtering(ip,imp);
+        if (showDialog(ip))  filtering(ip,imp);
         IJ.showProgress(1.0);
     }
 
@@ -46,56 +46,60 @@ public class BandControl_ implements PlugInFilter
         N = ip.getHeight();
         if (M!=N) dim = (int)(Math.min(M,N)/2);
         else dim = M/2;
-        threshold_min = 10;
-        threshold_max = 20;
-        String[] choices = {"BandPass","BandReject"};
-        GenericDialog gd = new GenericDialog("Frequency Filters");
-        gd.addChoice("filters: ",choices, "BandPass");
-        gd.addNumericField("Minimum Threshold Factor:", threshold_min, 0);
-        gd.addNumericField("Maximum Threshold Factor:", threshold_max, 0);
-        gd.addCheckbox("Display Filter", displayFilter);
+        threshold = 20;
+        order = 1;
+        String[] choices = {"Ideal","Butterworth","Gaussian"};
+        
+        GenericDialog gd = new GenericDialog("Filters");
+        gd.addChoice("Highpass Frequency Filters: ",choices, "Ideal");
         gd.showDialog();
         if (gd.wasCanceled())
             return false;
-        if(gd.invalidNumber())
+        int choiceIndex = gd.getNextChoiceIndex();
+        filter = choices[choiceIndex];
+        
+        GenericDialog gd2 = new GenericDialog("Filter Parameters");
+        gd2.addNumericField("Threshold Factor:", threshold, 0);
+        if (filter.equals("Butterworth"))
+            gd2.addNumericField("Order:", order, 0);
+        gd2.addCheckbox("Display Filter", displayFilter);
+        gd2.showDialog();
+        if (gd2.wasCanceled())
+            return false;
+        if(gd2.invalidNumber())
         {
             IJ.error("Error", "Invalid input number");
             return false;
         }
-        int choiceIndex = gd.getNextChoiceIndex();
-        filter = choices[choiceIndex];
-        threshold_min = (int) gd.getNextNumber();
-        threshold_max = (int) gd.getNextNumber();
-        displayFilter = gd.getNextBoolean();
-        if (threshold_min>=0 && threshold_max<=dim && threshold_min<threshold_max)
+        threshold = (int) gd2.getNextNumber();
+        if (filter.equals("Butterworth"))
+            order = (int) gd2.getNextNumber();
+        displayFilter = gd2.getNextBoolean();
+        if (threshold>=0 && threshold<=dim)
             return true;
         else
         {
-            GenericDialog gd2;
+            GenericDialog gd3;
             boolean flag = true;
             while (flag)
             {
-                threshold_min = 10;
-                threshold_max = 20;
-                JOptionPane.showMessageDialog(null,"error, threshold must belong to [" + 0 + "," + dim + "] and minimum threshold must be less than maximum threshold");
-                gd2 = new GenericDialog(" Threshold ");
-                gd2.addNumericField("Minimum Threshold Factor:", threshold_min, 0);
-                gd2.addNumericField("Maximum Threshold Factor:", threshold_max, 0);
-                gd2.showDialog();
-                if (gd2.wasCanceled() || gd2.invalidNumber())
+                threshold = 20;
+                JOptionPane.showMessageDialog(null,"error, threshold must belong to [" + 0 + "," + dim + "]");
+                gd3 = new GenericDialog(" Threshold ");
+                gd3.addNumericField("Threshold Factor:", threshold, 0);
+                gd3.showDialog();
+                if (gd3.wasCanceled() || gd3.invalidNumber())
                     return false;
                 else
                 {
-                    threshold_min = (int) gd2.getNextNumber();
-                    threshold_max = (int) gd2.getNextNumber();
-                    if (threshold_min>=0 && threshold_max<=dim && threshold_min<threshold_max)
+                    threshold = (int) gd3.getNextNumber();
+                    if (threshold>=0 && threshold<=dim)
                         flag = false;
                 }
             }
         }
         return true;
     }
-
 
     // shows the power spectrum and filters the image
     public void filtering(ImageProcessor ip, ImagePlus imp)
@@ -116,12 +120,14 @@ public class BandControl_ implements PlugInFilter
             fht.rgb = (ColorProcessor)ip.duplicate(); // get a duplication of brightness in order to add it after filtering
         }
         else  fht = new FHT(ip2);
+
         fht.originalColorModel = ip.getColorModel();
         fht.originalBitDepth = imp.getBitDepth();
         fht.transform();	// calculates the Fourier transformation
-
-        if (filter.equals("BandPass"))       ipFilter = BandPass();
-        if (filter.equals("BandReject"))     ipFilter = BandReject();
+        
+        if (filter.equals("Ideal"))        ipFilter = Ideal();
+        if (filter.equals("Butterworth"))  ipFilter = Butterworth(order);
+        if (filter.equals("Gaussian"))     ipFilter = Gaussian();
 
         fht.swapQuadrants(ipFilter);
         byte[] pixels_id = (byte[])ipFilter.getPixels();
@@ -139,43 +145,16 @@ public class BandControl_ implements PlugInFilter
         doInverseTransform(fht);
     }
 
-
-    // creates a band-pass filter
-    public ImageProcessor BandPass()
+    // creates an ideal highpass filter
+    public ByteProcessor Ideal()
     {
-        ImageProcessor ip = new ColorProcessor(M,N);
-        ip.fill();
-        int xcenter = M/2;
-        int ycenter = N/2;
-
-        for (int radius=threshold_min; radius<threshold_max;radius++)
-        {
-            for (double counter = 0; counter < 10; counter = counter + 0.001)
-            {
-                double x = Math.sin(counter) * radius + xcenter;
-                double y = Math.cos(counter) * radius + ycenter;
-                ip.putPixel((int)x, (int)y, 255);
-            }
-        }
-
-        ByteProcessor ip2 = new ByteProcessor(size,size);
-        ip2.fill();
-        ip2.insert(ip, w, h);
-        if (displayFilter) new ImagePlus("Band-pass filter", ip2).show();
-        return ip2;
-    }
-
-
-    // creates a band-reject filter
-    public ImageProcessor BandReject()
-    {
-        ImageProcessor ip = new ColorProcessor(M,N);
+        ByteProcessor ip = new ByteProcessor(M,N);
         ip.setColor(Color.white);
         ip.fill();
         int xcenter = M/2;
         int ycenter = N/2;
-
-        for (int radius=threshold_min; radius<threshold_max;radius++)
+        
+        for (int radius=0; radius<threshold;radius++)
         {
             for (double counter = 0; counter < 10; counter = counter + 0.001)
             {
@@ -189,10 +168,66 @@ public class BandControl_ implements PlugInFilter
         byte[] p = (byte[]) ip2.getPixels();
         for (int i=0; i<size*size; i++) p[i] = (byte)255;
         ip2.insert(ip, w, h);
-        if (displayFilter) new ImagePlus("Band-Reject filter", ip2).show();
+        if (displayFilter) new ImagePlus("Ideal filter", ip2).show();
         return ip2;
     }
 
+    // creates a Butterworth highpass filter
+    public ByteProcessor Butterworth(int n)
+    {
+        ByteProcessor ip = new ByteProcessor(M,N);
+        double value = 0;
+        double distance = 0;
+        int xcenter = (M/2)+1;
+        int ycenter = (N/2)+1;
+        
+        for (int y = 0; y < N; y++)
+        {
+            for (int x = 0; x < M; x++)
+            {
+                distance = Math.abs(x-xcenter)*Math.abs(x-xcenter)+Math.abs(y-ycenter)*Math.abs(y-ycenter);
+                distance = Math.sqrt(distance);
+                double parz = Math.pow(threshold/distance,2*n);
+                value = 255*(1/(1+parz));
+                ip.putPixelValue(x,y,value);
+            }
+        }
+
+        ByteProcessor ip2 = new ByteProcessor(size,size);
+        byte[] p = (byte[]) ip2.getPixels();
+        for (int i=0; i<size*size; i++) p[i] = (byte)255;
+        ip2.insert(ip, w, h);
+        if (displayFilter) new ImagePlus("Butterworth filter", ip2).show();
+        return ip2;
+    }
+
+    // creates a gaussian highpass filter
+    public ByteProcessor Gaussian()
+    {
+        ByteProcessor ip = new ByteProcessor(M,N);
+        double value = 0;
+        double distance = 0;
+        int xcenter = (M/2)+1;
+        int ycenter = (N/2)+1;
+        
+        for (int y = 0; y < N; y++)
+        {
+            for (int x = 0; x < M; x++)
+            {
+                distance = Math.abs(x-xcenter)*Math.abs(x-xcenter)+Math.abs(y-ycenter)*Math.abs(y-ycenter);
+                distance = Math.sqrt(distance);
+                value = 255-(255*Math.exp((-1*distance*distance)/(2*threshold*threshold)));
+                ip.putPixelValue(x,y,value);
+            }
+        }
+
+        ByteProcessor ip2 = new ByteProcessor(size,size);
+        byte[] p = (byte[]) ip2.getPixels();
+        for (int i=0; i<size*size; i++) p[i] = (byte)255;
+        ip2.insert(ip, w, h);
+        if (displayFilter) new ImagePlus("Gaussian filter", ip2).show();
+            return ip2;
+    }
 
     // applies the inverse Fourier transform to the filtered image
     void doInverseTransform(FHT fht)
@@ -227,7 +262,6 @@ public class BandControl_ implements PlugInFilter
         String title = imp.getTitle();
         if (title.startsWith("FFT of "))
             title = title.substring(7, title.length());
-        ip2 = ip2.convertToByte(true);
         ImagePlus imp2 = new ImagePlus("Inverse FFT of "+title, ip2);
         if (imp2.getWidth()==imp.getWidth())
             imp2.setCalibration(imp.getCalibration());

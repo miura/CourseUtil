@@ -1,39 +1,40 @@
+package emblcmci.external.it.catania;
 import ij.*;
-import ij.io.*;
 import ij.process.*;
 import ij.gui.*;
 import ij.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import ij.plugin.frame.*;
-import java.io.*;
 import java.util.*;
-import javax.swing.event.*;
 
-/**     This plugin implements the more common order-statistics filters
-        @author Leonardi Rosa-BS degree in Computer Science 
-        Advisor: Prof. Battiato Sebastiano
-        Organization: University of Catania - ITALY
+/**     
+    This plugin implements the adaptive filters for the reduction of the local noise in one image 
+    @author Leonardi Rosa-BS degree in Computer Science 
+    Advisor: Prof. Battiato Sebastiano
+    Organization: University of Catania - ITALY
 */
-public class Order_Statistics_Filters extends PlugInFrame implements ActionListener, ItemListener
+public class Adaptive_Filters extends PlugInFrame implements ActionListener, ItemListener, TextListener
 {
     private Font monoFont = new Font("Monospaced", Font.PLAIN, 12);
     private Font sans = new Font("SansSerif", Font.BOLD, 12);
     private Button preview;
     private Button apply;
+    private TextField varField;
+    private double varianceNoise=1000;
     private long time;
     private ImageProcessor ip;  
     private ImagePlus imp;
     private int type;
     private Choice choice;
     private String selected;
-    private int DimKernel=3;
-    private int alpha = 3;
-    private String[] filters={"Median Filter","Max Filter","Min Filter","Midpoint Filter", "Alpha-trimmed mean Filter"};
-    public Order_Statistics_Filters() 
+    private int DimKernel=5;
+    private int SMax=DimKernel+6; 
+    private String[] filters={"Adaptive filter","Adaptive median filter"};
+    
+    public Adaptive_Filters() 
     {
-        super("Order-Statistics Filters");
+        super("Adaptive Filters");
         setResizable(true);
     }
     public void run(String arg) 
@@ -57,7 +58,7 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
             
         // Panel title
         Panel paneltitle = new Panel();
-        Label title= new Label("Order-Statistics Filters", Label.CENTER);
+        Label title= new Label("Adaptive filters", Label.CENTER);
         title.setFont(sans);
         paneltitle.add(title);
         c.gridx = 0;
@@ -77,11 +78,21 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
         for (int i=0; i<filters.length; i++)
             choice.addItem(filters[i]);
         choice.addItemListener(this);
-        selected="Median Filter";
+        selected="Adaptive filter";
         choice.select(0);
         panelChoice.add(choice);
         add(panelChoice);
-        
+            
+        // panel variance of the noise
+        Panel panelVar = new Panel();
+        Label varLab = new Label("Estimate of the variance of the noise: ");
+        varLab.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        panelVar.add(varLab);
+        int digits=0;
+        varField = new TextField(IJ.d2s(varianceNoise, digits),5);
+        varField.addTextListener(this);
+        panelVar.add(varField);
+
         // panel Preview
         Panel panelPreview = new Panel();
         preview = new Button("Preview");
@@ -97,7 +108,7 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
         // panel Info & Help
         Panel panelInfoHelp = new Panel();
         Button ih = new Button("Help & Info");
-        ih.addActionListener(new InfoHelpViewerOSF());
+        ih.addActionListener(new InfoHelpViewerAF());
         panelInfoHelp.add(ih);
         
         // panel container
@@ -106,6 +117,7 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
         c.gridy = y++;
         c.insets = new Insets(10, 0, 0, 10);
         gridbag.setConstraints(container, c);
+        container.add(panelVar);
         container.add(panelPreview);
         container.add(panelApply);
         container.add(panelInfoHelp);
@@ -122,20 +134,14 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
         Object source=e.getSource();
         if(source==preview)
         {
-            OrderStatisticsFilter osf=null;
+            AdaptiveF af=null;
             ImagePlus processed = null;
             String chosen="";
             time=System.currentTimeMillis();
-            if(selected.equals("Median Filter"))
-                chosen="Median Filter";
-            else if(selected.equals("Max Filter"))
-                chosen="Max Filter";
-            else if(selected.equals("Min Filter"))
-                chosen="Min Filter";
-            else if(selected.equals("Midpoint Filter"))
-                chosen="Midpoint Filter";
-            else if(selected.equals("Alpha-trimmed mean Filter"))
-                chosen="Alpha-trimmed mean Filter";
+            if(selected.equals("Adaptive filter"))
+                chosen="Adaptive filter";
+            else if(selected.equals("Adaptive median filter"))
+                chosen="Adaptive median filter";
             else chosen=selected;
             boolean dialog=showDialog();
             if (dialog==false)
@@ -143,51 +149,45 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
                 IJ.error("Error","You must insert an entire number positive greater or equal odd number to 2 ");
                 return;
             }
-            IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" ");
-            if(chosen.equals("Alpha-trimmed mean Filter"))
-            {
-                dialog=showDialogAlpha();
-                if (dialog==false)
+            if(chosen.equals("Adaptive filter"))
+                IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" with estimate of the variance of the noise equal to: "+varianceNoise+" ");
+            else 
+                if(chosen.equals("Adaptive median filter"))
                 {
-                    IJ.error("Error","You must insert a greater number of zero and smaller one of "+DimKernel*DimKernel+" ");
-                    return;
+                    dialog=showDialog2();
+                    if (dialog==false)
+                    {
+                        IJ.error("Error","You must insert an entire number positive greater or equal odd number to "+DimKernel);
+                        return;
+                    }
+                    IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" with S_max= "+SMax);
                 }
-            }
-            osf= new OrderStatisticsFilter(imp, imp.getTitle(),chosen,DimKernel,alpha);
+            af= new AdaptiveF(imp, imp.getTitle(),chosen,DimKernel,varianceNoise,SMax);
             if(type==ImagePlus.GRAY8)
-                processed=osf.createProcessed8bitImage(); 
+                processed=af.createProcessed8bitImage(); 
             else if(type==ImagePlus.GRAY16)
-                processed=osf.createProcessed8bitImage();
+                processed=af.createProcessed8bitImage();
             else if(type==ImagePlus.GRAY32)
-                processed=osf.createProcessed8bitImage();
+                processed=af.createProcessed8bitImage();
             else if(type==ImagePlus.COLOR_256)
-                processed=osf.createProcessed8bitImage();
+                processed=af.createProcessed8bitImage();
             else if(type==ImagePlus.COLOR_RGB)
-                processed=osf.createProcessedRGBImage();
+                processed=af.createProcessedRGBImage();
             time=System.currentTimeMillis()-time;
             double time_sec=time/1000.0;
-            PreviewImageOSF prew=new PreviewImageOSF(processed,time_sec);
+            PreviewImageAF prew=new PreviewImageAF(processed,time_sec);
         }
         if(source==apply)
         {
             Undo.setup(Undo.COMPOUND_FILTER, imp);
             WindowManager.setTempCurrentImage(imp);
-            OrderStatisticsFilter osf=null;
+            AdaptiveF af=null;
             String chosen="";
-            if(selected.equals("Median Filter"))
-                chosen="Median Filter";
+            if(selected.equals("Adaptive filter"))
+                chosen="Adaptive filter";
             else 
-                if(selected.equals("Max Filter"))
-                    chosen="Max Filter";  
-            else 
-                if(selected.equals("Min Filter"))
-                    chosen="Min Filter";  
-            else 
-                if(selected.equals("Midpoint Filter"))
-                    chosen="Midpoint Filter";  
-            else 
-                if(selected.equals("Alpha-trimmed mean Filter"))
-                    chosen="Alpha-trimmed mean Filter";  
+                if(selected.equals("Adaptive median filter"))
+                    chosen="Adaptive median filter";  
             else chosen=selected;
             boolean dialog=showDialog();
             if (dialog==false)
@@ -195,27 +195,22 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
                 IJ.error("Error","You must insert an entire number positive greater or equal odd number to 2 ");
                 return;
             }
-            IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" ");
-            if(chosen.equals("Alpha-trimmed mean Filter"))
-            {
-                dialog=showDialogAlpha();
-                if (dialog==false)
-                {
-                    IJ.error("Error","You must insert a greater number of zero and smaller one of "+DimKernel*DimKernel+" ");
-                    return;
-                }
-            }
-            osf = new OrderStatisticsFilter(imp, imp.getTitle(),chosen,DimKernel,alpha);
+            if(chosen.equals("Adaptive filter"))
+                IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" with estimate of the variance of the noise equal to: "+varianceNoise+" ");
+            else 
+                if(chosen.equals("Adaptive median filter"))
+                IJ.showMessage("Filter: "," "+chosen+" "+DimKernel+"x"+DimKernel+" ");
+            af= new AdaptiveF(imp, imp.getTitle(),chosen,DimKernel,varianceNoise,SMax);
             if(type==ImagePlus.GRAY8)
-                osf.createProcessed8bitImage(imp); 
+                af.createProcessed8bitImage(imp); 
             else if(type==ImagePlus.GRAY16)
-                osf.createProcessed8bitImage(imp);
+                af.createProcessed8bitImage(imp);
             else if(type==ImagePlus.GRAY32)
-                osf.createProcessed8bitImage(imp);
+                af.createProcessed8bitImage(imp);
             else if(type==ImagePlus.COLOR_256)
-                osf.createProcessed8bitImage(imp);
+                af.createProcessed8bitImage(imp);
             else if(type==ImagePlus.COLOR_RGB)
-                osf.createProcessedRGBImage(imp);
+                af.createProcessedRGBImage(imp);
             imp.updateAndRepaintWindow();
             imp.changes=true;
             Undo.setup(Undo.COMPOUND_FILTER_DONE, imp);
@@ -238,17 +233,17 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
         else
             return true;
     }
-    public boolean showDialogAlpha()
+    public boolean showDialog2()
     {
-        GenericDialog gd = new GenericDialog("Value of Alpha:");
-        gd.addNumericField("alpha = ",alpha,0);
+        GenericDialog gd = new GenericDialog("Dimension of the S max:");
+        gd.addNumericField("S_max = ",SMax,0);
         gd.showDialog();
         if (gd.wasCanceled())
             return false;
-        alpha=(int)gd.getNextNumber();
-        if((alpha<0)||(alpha>DimKernel*DimKernel))
+        SMax=(int)gd.getNextNumber();
+        if((SMax<0)||(SMax%2==0)||(SMax<DimKernel))
         {
-            alpha=3;    
+            SMax=DimKernel;    
             return false;
         }
         else
@@ -258,18 +253,33 @@ public class Order_Statistics_Filters extends PlugInFrame implements ActionListe
     {
         selected=choice.getSelectedItem();  
     }
+    public void textValueChanged(TextEvent e) 
+    {
+        TextComponent tc = (TextComponent)e.getSource();
+        if(tc==varField)
+        {
+            try
+            {
+                varianceNoise=Double.parseDouble(varField.getText());  
+            }
+            catch(NumberFormatException exp)
+            {
+                IJ.error("Number Format Exception","You must enter a number");  
+            }
+        }
+    }
 }
 
-class InfoHelpViewerOSF implements ActionListener
+class InfoHelpViewerAF implements ActionListener
 {
-    private String description="HELP ABOUT \"Order-Statistics Filters\"\n\n"+
-            "This plugin implements the more common order-statistics filters\n"+
-            "User can choose one of the order-statistics filters specified in the combo box and to insert the dimension of the kernel to apply.\n"+
+    private String description="HELP ABOUT \"Adapive Filters\"\n\n"+
+            "This plugin implements the adaptive filters for the reduction of the local noise in one image \n"+
+            "User can choose one of the adaptive filters specified in the combo box and to insert the dimension of the kernel to apply.\n"+
             "Here is a brief description of the steps to do:\n"+
             "1) Choose a standard filter using the combo box;\n"+
             "2) Click on the button \"Preview\" to view as the image would be if it was processed according to the chosen filter;\n"+
             "3) To insert the dimension of the kernel to apply \n"+
-            "4) Click on the button \"Apply\" to definitively apply the current filtering to the image;\n\n"+
+            "4) Click on the button \"Apply\" to definitively apply the current filtering to the image inserting the dimension of the filter like before;\n\n"+
             "ABOUT THE AUTHOR\n"+
             "This plugin was implemented by Rosa Leonardi under Professor Sebastiano Battiato's supervision.\n"+
             "It was a part of a project for the Multimedia Course (MSC Program in Computer Science) at University of Catania (ITALY)\n\n"+
@@ -285,18 +295,18 @@ class InfoHelpViewerOSF implements ActionListener
     {
         StringBuffer sb = new StringBuffer();
         sb.append(description);
-        TextWindow tw = new TextWindow("About \" Order-Statistics Filters \"", sb.toString(), 700, 500);
+        TextWindow tw = new TextWindow("About \" Adaptive Filters \"", sb.toString(), 700, 500);
         tw.show();
     }
 }
 
-class PreviewImageOSF implements ActionListener
+class PreviewImageAF implements ActionListener
 {
     private ImageCanvas canvas;
     private Panel panelTime;
     private ImagePlus im;
         
-    public PreviewImageOSF(ImagePlus img, double time)
+    public PreviewImageAF(ImagePlus img, double time)
     {
         im=img;
         canvas=new ImageCanvas(im);
@@ -345,25 +355,27 @@ class PreviewImageOSF implements ActionListener
     }
 }
 
-class OrderStatisticsFilter
+class AdaptiveF
 {
     private ImagePlus imp;
     private ImageProcessor ip;
     private int width;
     private int height;
-    private String title, type_filter; 
+    private String title, type; 
     private int Dim_kernel;//dimension of the kernel
-    private int alpha; 
-    public OrderStatisticsFilter(ImagePlus image, String t, String type, int k, int a) 
+    private double var_noise;//estimate of the variance of the noise
+    private int S_max;
+    public AdaptiveF(ImagePlus image, String t, String adaptive, int k, double vn, int smax) 
     {
 	    imp=image;
         ip=imp.getProcessor();
         width=ip.getWidth();
         height=ip.getHeight();
         title=t;
-        type_filter=type;
+        type=adaptive;
         Dim_kernel=k;
-        alpha=a;
+        var_noise=vn;
+        S_max=smax;
     }
     /**
     * Converts a 1D array into a 2D array.
@@ -396,6 +408,67 @@ class OrderStatisticsFilter
             for(int j=0;j<height;++j)
 	            output[i+(j*width)] = outputArrays[i][j];
         return output;
+    }
+   /**
+    * Calculates the mean of a kxk pixel neighbourhood (including centre pixel).
+    *
+    * @param input The input image 2D array
+    * @param k Dimension of the kernel
+    * @param w The image width
+    * @param h The image height
+    * @param x The x coordinate of the centre pixel of the array
+    * @param y The y coordinate of the centre pixel of the array
+    * @return The mean of the kxk pixels
+    */ 
+    public double MeanLocal(int[][] input, int k,int w, int h, int x, int y) 
+    {
+        double sum=0;
+        double number = 0;
+        for(int j=0;j<k;++j)
+        {
+            for(int i=0;i<k;++i)
+            {
+	            if(((x-1+i)>=0) && ((y-1+j)>=0) && ((x-1+i)<w) && ((y-1+j)<h))
+                {
+                    sum = sum+input[x-1+i][y-1+j];
+                    ++number;
+                }
+            }
+        }
+        if(number==0) 
+            return 0;
+        return (sum/number);
+    }
+    /**
+    * Calculates the variance of a kxk pixel neighbourhood (including centre pixel).
+    *
+    * @param input The input image 2D array
+    * @param k Dimension of the kernel
+    * @param w The image width
+    * @param h The image height
+    * @param x The x coordinate of the centre pixel of the array
+    * @param y The y coordinate of the centre pixel of the array
+    * @param m The mean of a kxk pixel neighbourhood 
+    * @return The variance of the kxk pixels
+    */ 
+    public double VarianceLocal(int[][] input, int k,int w, int h, int x, int y, double m) 
+    {
+        double sum=0;
+        double number = 0;
+        for(int j=0;j<k;++j)
+        {
+            for(int i=0;i<k;++i)
+            {
+	            if(((x-1+i)>=0) && ((y-1+j)>=0) && ((x-1+i)<w) && ((y-1+j)<h))
+                {
+                    sum = sum+Math.pow((input[x-1+i][y-1+j]-m),2);
+                    ++number;
+                }
+            }
+        }
+        if(number==0) 
+            return 0;
+        return (sum/number);
     }
     /**
     * Calculates the median of a kxk pixel neighbourhood (including centre pixel).
@@ -497,137 +570,95 @@ class OrderStatisticsFilter
         return supp[0];
     }
     /**
-    * Calculates the alpha-trimmed mean of a kxk pixel neighbourhood (including centre pixel).
-    *
-    * @param input The input image 2D array
-    * @param k Dimension of the kernel
-    * @param w The image width
-    * @param h The image height
-    * @param x The x coordinate of the centre pixel of the array
-    * @param y The y coordinate of the centre pixel of the array
-    * @return The the alpha-trimmed mean of the kxk pixels
-    */ 
-    public int AlphaTrimmed(int[][] input, int k,int w, int h, int x, int y) 
-    {
-        int[] supp=new int[k*k];
-        int t=0;
-        int sum=0;
-        int number = 0;
-        for(int j=0;j<k;++j)
-        {
-            for(int i=0;i<k;++i)
-            {
-	            if(((x-1+i)>=0) && ((y-1+j)>=0) && ((x-1+i)<w) && ((y-1+j)<h))
-                {
-                    supp[t]=input[x-1+i][y-1+j];
-                    t++;
-	                ++number;
-	            }
-            }
-        }
-        if(number==0) 
-            return 0;
-        Arrays.sort(supp);
-        for(int u=0;u<(alpha/2);u++)
-            supp[u]=-1;
-        for(int v=number-1;v>number-1-(alpha/2);v--)
-            supp[v]=-1;
-        for(int l=0;l<number;l++)
-        {
-            if(supp[l]!=-1)
-                sum=sum+supp[l];
-        }
-        if(sum==0)
-            return 0;
-        else
-            return (sum/(number-alpha));
-    }
-    /**
-    * Takes an image in 2D array form and it applies the median filter with the specified dimension of the kernel from the user 
+    * Takes an image in 2D array form and it applies the adaptive filter with the specified dimension of the kernel from the user 
     * @param input the input image
     * @param k Dimension of the kernel
     * @param width Width of the input image
     * @param height Height of the output image
     * @return the new filtered image 2D array
     */
-    public int[][] ApplyMedian(int[][] input, int k,int width, int height)
+    public int[][] ApplyAdaptiveFilter(int[][] input, int k,int width, int height)
     {
+        double mean_l=0;
+        double var_l=0;
         int [][] outputArrays = new int [width][height];
-        for(int j=0;j<height;++j)
-            for(int i=0;i<width;++i)
-                outputArrays[i][j] = median(input,k,width,height,i,j);
-        return outputArrays;
-    }
-    /**
-    * Takes an image in 2D array form and it applies the max filter with the specified dimension of the kernel from the user 
-    * @param input the input image
-    * @param k Dimension of the kernel
-    * @param width Width of the input image
-    * @param height Height of the output image
-    * @return the new filtered image 2D array
-    */
-    public int[][] ApplyMax(int[][] input, int k,int width, int height)
-    {
-        int [][] outputArrays = new int [width][height];
-        for(int j=0;j<height;++j)
-            for(int i=0;i<width;++i)
-                outputArrays[i][j] = max(input,k,width,height,i,j);
-        return outputArrays;
-    }
-    /**
-    * Takes an image in 2D array form and it applies the min filter with the specified dimension of the kernel from the user 
-    * @param input the input image
-    * @param k Dimension of the kernel
-    * @param width Width of the input image
-    * @param height Height of the output image
-    * @return the new filtered image 2D array
-    */
-    public int[][] ApplyMin(int[][] input, int k,int width, int height)
-    {
-        int [][] outputArrays = new int [width][height];
-        for(int j=0;j<height;++j)
-            for(int i=0;i<width;++i)
-                outputArrays[i][j] = min(input,k,width,height,i,j);
-        return outputArrays;
-    }
-    /**
-    * Takes an image in 2D array form and it applies the midpoint filter with the specified dimension of the kernel from the user 
-    * @param input the input image
-    * @param k Dimension of the kernel
-    * @param width Width of the input image
-    * @param height Height of the output image
-    * @return the new filtered image 2D array
-    */
-    public int[][] ApplyMidpoint(int[][] input, int k,int width, int height)
-    {
-        int [][] outputArrays = new int [width][height];
-        int t1=0;
-        int t2=0;
+        int value=0;
         for(int j=0;j<height;++j)
             for(int i=0;i<width;++i)
             {
-                t1=min(input,k,width,height,i,j);
-                t2=max(input,k,width,height,i,j);
-                outputArrays[i][j] =(t1+t2)/2;
+                mean_l=MeanLocal(input,k,width,height,i,j);
+                var_l=VarianceLocal(input,k,width,height,i,j,mean_l);
+                double ratio;
+                if(var_noise>var_l)
+                    ratio=1;
+                else
+                    ratio=var_noise/var_l;
+                value=input[i][j]-(int)(ratio*(input[i][j]-mean_l));
+                if(value<0)
+                    value=0;
+                if(value>255)
+                    value=255;
+                outputArrays[i][j] = value;
             }
         return outputArrays;
     }
     /**
-    * Takes an image in 2D array form and it applies the alpha-trimmed mean filter with the specified dimension of the kernel from the user 
+    * Takes an image in 2D array form and it applies the adaptive median filter with the specified dimension of the kernel from the user 
     * @param input the input image
     * @param k Dimension of the kernel
     * @param width Width of the input image
     * @param height Height of the output image
     * @return the new filtered image 2D array
     */
-    public int[][] ApplyAlpha(int[][] input, int k,int width, int height)
+    public int[][] ApplyAdaptiveMedianFilter(int[][] input, int k,int width, int height)
     {
+        int z_min;
+        int z_max;
+        int z_med;
+        int z;
+        boolean supp=false;
         int [][] outputArrays = new int [width][height];
-        int t1=0;
-        int t2=0;
         for(int j=0;j<height;++j)
             for(int i=0;i<width;++i)
-                outputArrays[i][j] = AlphaTrimmed(input,k,width,height,i,j);
+            {
+                int dim=k;
+                int value=0;
+                while(dim<S_max+1)
+                {  
+                    z_min=min(input,dim,width,height,i,j);
+                    z_max=max(input,dim,width,height,i,j);
+                    z_med=median(input,dim,width,height,i,j);
+                    z=input[i][j];
+                    int A1=z_med-z_min;
+                    int A2=z_med-z_max;
+                    if((A1>0)&&(A2<0))
+                    {  
+                        int B1=z-z_min;
+                        int B2=z-z_max;
+                        if((B1>0)&&(B2<0))
+                            value=z;
+                        else 
+                            value=z_med;
+                        break;
+                    }
+                    else
+                    {
+                        dim=dim+2;
+                        if(dim<=S_max)
+                            continue;
+                        else 
+                        {
+                            value=z;
+                            break;
+                        }
+                    }
+                }
+                if(value<0)
+                    value=0;
+                if(value>255)
+                    value=255;
+                outputArrays[i][j] = value;
+            }
         return outputArrays;
     }
     public byte[] applyTransform(byte[] pixels)
@@ -635,38 +666,20 @@ class OrderStatisticsFilter
         byte[] output=new byte[pixels.length];
         int[] tmp=new int[pixels.length];
         for (int i=0;i<pixels.length;i++)
-            tmp[i]=pixels[i]&0xff;
+            tmp[i]= pixels[i]&0xff;
         int[][] supp1;
         int[][] supp2;
         int[] supp3=new int[pixels.length];
-        if(type_filter.equals("Median Filter"))
+        if(type.equals("Adaptive filter"))
         {
             supp1=generateInputArrays(tmp,width,height);
-            supp2=ApplyMedian(supp1,Dim_kernel,width,height);
+            supp2=ApplyAdaptiveFilter(supp1,Dim_kernel,width,height);
             supp3=generateOutputArray(supp2,width,height);
         }
-        else if(type_filter.equals("Max Filter"))
+        else if(type.equals("Adaptive median filter"))
         {
             supp1=generateInputArrays(tmp,width,height);
-            supp2=ApplyMax(supp1,Dim_kernel,width,height);
-            supp3=generateOutputArray(supp2,width,height);
-        }
-        else if(type_filter.equals("Min Filter"))
-        {
-            supp1=generateInputArrays(tmp,width,height);
-            supp2=ApplyMin(supp1,Dim_kernel,width,height);
-            supp3=generateOutputArray(supp2,width,height);
-        }
-        else if(type_filter.equals("Midpoint Filter"))
-        {
-            supp1=generateInputArrays(tmp,width,height);
-            supp2=ApplyMidpoint(supp1,Dim_kernel,width,height);
-            supp3=generateOutputArray(supp2,width,height);
-        }
-        else if(type_filter.equals("Alpha-trimmed mean Filter"))
-        {
-            supp1=generateInputArrays(tmp,width,height);
-            supp2=ApplyAlpha(supp1,Dim_kernel,width,height);
+            supp2=ApplyAdaptiveMedianFilter(supp1,Dim_kernel,width,height);
             supp3=generateOutputArray(supp2,width,height);
         }
         for(int j=0;j<supp3.length;j++)
@@ -695,62 +708,26 @@ class OrderStatisticsFilter
         int[][] supp2_red;
         int[][] supp2_green;
         int[][] supp2_blue;
-        if(type_filter.equals("Median Filter"))
+        if(type.equals("Adaptive filter"))
         {
             supp1_red=generateInputArrays(tmp_red,width,height);
             supp1_green=generateInputArrays(tmp_green,width,height);
             supp1_blue=generateInputArrays(tmp_blue,width,height);
-            supp2_red=ApplyMedian(supp1_red,Dim_kernel,width,height);
-            supp2_green=ApplyMedian(supp1_green,Dim_kernel,width,height);
-            supp2_blue=ApplyMedian(supp1_blue,Dim_kernel,width,height);
+            supp2_red=ApplyAdaptiveFilter(supp1_red,Dim_kernel,width,height);
+            supp2_green=ApplyAdaptiveFilter(supp1_green,Dim_kernel,width,height);
+            supp2_blue=ApplyAdaptiveFilter(supp1_blue,Dim_kernel,width,height);
             output_red=generateOutputArray(supp2_red,width,height);
             output_green=generateOutputArray(supp2_green,width,height);
             output_blue=generateOutputArray(supp2_blue,width,height);
         }
-        else if(type_filter.equals("Max Filter"))
+        else if(type.equals("Adaptive median filter"))
         {
             supp1_red=generateInputArrays(tmp_red,width,height);
             supp1_green=generateInputArrays(tmp_green,width,height);
             supp1_blue=generateInputArrays(tmp_blue,width,height);
-            supp2_red=ApplyMax(supp1_red,Dim_kernel,width,height);
-            supp2_green=ApplyMax(supp1_green,Dim_kernel,width,height);
-            supp2_blue=ApplyMax(supp1_blue,Dim_kernel,width,height);
-            output_red=generateOutputArray(supp2_red,width,height);
-            output_green=generateOutputArray(supp2_green,width,height);
-            output_blue=generateOutputArray(supp2_blue,width,height);
-        }
-        else if(type_filter.equals("Min Filter"))
-        {
-            supp1_red=generateInputArrays(tmp_red,width,height);
-            supp1_green=generateInputArrays(tmp_green,width,height);
-            supp1_blue=generateInputArrays(tmp_blue,width,height);
-            supp2_red=ApplyMin(supp1_red,Dim_kernel,width,height);
-            supp2_green=ApplyMin(supp1_green,Dim_kernel,width,height);
-            supp2_blue=ApplyMin(supp1_blue,Dim_kernel,width,height);
-            output_red=generateOutputArray(supp2_red,width,height);
-            output_green=generateOutputArray(supp2_green,width,height);
-            output_blue=generateOutputArray(supp2_blue,width,height);
-        }
-        else if(type_filter.equals("Midpoint Filter"))
-        {
-            supp1_red=generateInputArrays(tmp_red,width,height);
-            supp1_green=generateInputArrays(tmp_green,width,height);
-            supp1_blue=generateInputArrays(tmp_blue,width,height);
-            supp2_red=ApplyMidpoint(supp1_red,Dim_kernel,width,height);
-            supp2_green=ApplyMidpoint(supp1_green,Dim_kernel,width,height);
-            supp2_blue=ApplyMidpoint(supp1_blue,Dim_kernel,width,height);
-            output_red=generateOutputArray(supp2_red,width,height);
-            output_green=generateOutputArray(supp2_green,width,height);
-            output_blue=generateOutputArray(supp2_blue,width,height);
-        }
-        else if(type_filter.equals("Alpha-trimmed mean Filter"))
-        {
-            supp1_red=generateInputArrays(tmp_red,width,height);
-            supp1_green=generateInputArrays(tmp_green,width,height);
-            supp1_blue=generateInputArrays(tmp_blue,width,height);
-            supp2_red=ApplyAlpha(supp1_red,Dim_kernel,width,height);
-            supp2_green=ApplyAlpha(supp1_green,Dim_kernel,width,height);
-            supp2_blue=ApplyAlpha(supp1_blue,Dim_kernel,width,height);
+            supp2_red=ApplyAdaptiveMedianFilter(supp1_red,Dim_kernel,width,height);
+            supp2_green=ApplyAdaptiveMedianFilter(supp1_green,Dim_kernel,width,height);
+            supp2_blue=ApplyAdaptiveMedianFilter(supp1_blue,Dim_kernel,width,height);
             output_red=generateOutputArray(supp2_red,width,height);
             output_green=generateOutputArray(supp2_green,width,height);
             output_blue=generateOutputArray(supp2_blue,width,height);

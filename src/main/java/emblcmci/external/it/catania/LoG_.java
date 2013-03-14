@@ -1,3 +1,5 @@
+package emblcmci.external.it.catania;
+import emblcmci.external.it.catania.utility.Service;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
@@ -5,7 +7,6 @@ import ij.plugin.filter.Convolver;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
-import utility.*;
 
 
 /**

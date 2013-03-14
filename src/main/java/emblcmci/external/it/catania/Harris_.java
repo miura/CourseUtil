@@ -1,3 +1,4 @@
+package emblcmci.external.it.catania;
 //Harry detection per imageJ
 
 import ij.IJ;
@@ -23,7 +24,7 @@ import javax.swing.JOptionPane;
 public class Harris_ implements PlugInFilter
 {
        
-	// lista che conterrà  i conrner ad agni iterazione
+	// lista che conterr?  i conrner ad agni iterazione
        List<int[]> corners;
 	
 	//dimensioni di mezza finestra
@@ -110,7 +111,7 @@ public class Harris_ implements PlugInFilter
            if((width/potenza<8)||(height/potenza<8))
            {
                 piramidi=1;
-                JOptionPane.showMessageDialog(null,"n° di iteazioni da effettuare troppo alto,\n sarà effettuata una sola iterazione");
+                JOptionPane.showMessageDialog(null,"n? di iteazioni da effettuare troppo alto,\n sar? effettuata una sola iterazione");
            }
 
             ByteProcessor newbp;
@@ -161,7 +162,7 @@ public class Harris_ implements PlugInFilter
               {
                      for (int x=0; x<width; x++)
                      {
-		// harris response(-1 se il pixel non è un massimo locale)
+		// harris response(-1 se il pixel non ? un massimo locale)
                             int h = (int)spatialMaximaofHarrisMeasure(c, x, y);
                             
 		// aggiunge il corner alla lista se supera un valore di soglia
@@ -180,7 +181,7 @@ public class Harris_ implements PlugInFilter
                      }
               }
               
-		// si tengono i valori di risposta più alti
+		// si tengono i valori di risposta pi? alti
               Iterator<int[]> iter = corners.iterator();
               while(iter.hasNext())
               {
@@ -200,12 +201,12 @@ public class Harris_ implements PlugInFilter
        }
        
        /**
-        * reatituisce il valore del pixel (x,y) se è un massimo, altrimenti restituisce -1
+        * reatituisce il valore del pixel (x,y) se ? un massimo, altrimenti restituisce -1
         *
         * @param c immagine
         * @param x coordinata x
         * @param y coordinata y
-        * @return la harris response se il pixel è un massimo locale, -1 altrimenti
+        * @return la harris response se il pixel ? un massimo locale, -1 altrimenti
         */
        private double spatialMaximaofHarrisMeasure(ByteProcessor c, int x, int y)
        {
@@ -218,11 +219,11 @@ public class Harris_ implements PlugInFilter
               for(int i=0;i<n;i++)
               {
                      double wk = harrisMeasure(c,x+dx[i],y+dy[i]);
-		//se almeno un valore calcolato in un punto dell'intorno è maggiore di quello del punto in questione, esso non
-		// è un massimo locale e si restituisce -1
+		//se almeno un valore calcolato in un punto dell'intorno ? maggiore di quello del punto in questione, esso non
+		// ? un massimo locale e si restituisce -1
                      if (wk>=w) return -1;
               }
-		//in caso contrario è un massimo locale
+		//in caso contrario ? un massimo locale
               return w;
        }
        
@@ -240,7 +241,7 @@ public class Harris_ implements PlugInFilter
               
 		// k = det(A) - lambda * trace(A)^2
 		// A matrice del secondo momento
-		// lambda generalmente è tra 0.04 e 0.06. qui è stato fissato a 0.06
+		// lambda generalmente ? tra 0.04 e 0.06. qui ? stato fissato a 0.06
               
               for(int dy=-halfwindow;dy<=halfwindow;dy++)
               {

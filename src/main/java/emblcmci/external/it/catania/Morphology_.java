@@ -1,3 +1,4 @@
+package emblcmci.external.it.catania;
 import ij.*;
 import ij.io.*;
 import ij.process.*;
@@ -42,8 +43,8 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 
 	private DrawPanel drawPanel;
 	private int operatorToApply=0,sizeToApply=3,maskToApply=0;//sono valori che vengono settati dai vari combobox per stabilire l'operatore da applicare la dim e maschra.
-	private boolean applyUserDefynedMask=false;//è vera quando applico un operatore disegnato dall'utente
-	private boolean applyLoadedMask=false;//è vera quando applico un operatore caricato da file
+	private boolean applyUserDefynedMask=false;//? vera quando applico un operatore disegnato dall'utente
+	private boolean applyLoadedMask=false;//? vera quando applico un operatore caricato da file
 	private boolean binaryOperation=true;
 	private StructuringElement se;
 
@@ -55,7 +56,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 
 	public void run(String arg)
 	{
-		imp = WindowManager.getCurrentImage();//recupero l'ImagePlus chè la rappresentazionedell'immagine corrente
+		imp = WindowManager.getCurrentImage();//recupero l'ImagePlus ch? la rappresentazionedell'immagine corrente
 		if (imp==null)
 		{
 			IJ.beep();
@@ -293,7 +294,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 
 		if(source==binaryzeButton)
 		{
-			imp = WindowManager.getCurrentWindow().getImagePlus();//recupero imagePlus ed imageProcessor così che funzioni anche nel caso che la finestra cambi.
+			imp = WindowManager.getCurrentWindow().getImagePlus();//recupero imagePlus ed imageProcessor cos? che funzioni anche nel caso che la finestra cambi.
 			ip = imp.getProcessor();
 			this.processImage(-2);
 			this.binaryOperation=true;
@@ -320,7 +321,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 				binaryOperation=false;
 
 
-			imp = WindowManager.getCurrentWindow().getImagePlus();//recupero imagePlus ed imageProcessor così che funzioni anche nel caso che la finestra cambi.
+			imp = WindowManager.getCurrentWindow().getImagePlus();//recupero imagePlus ed imageProcessor cos? che funzioni anche nel caso che la finestra cambi.
 			ip = imp.getProcessor();
 
 			//aggiorno l'elemento strutturale con il contenuto del pannello che lo visualizza
@@ -378,7 +379,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 			else if (operation==7) gradient((byte[])(processed_ip.getPixels()),processed_ip,this.se);
 		}
 
-		//creo una nuova finestra che conterrà l'immagine elabirata
+		//creo una nuova finestra che conterr? l'immagine elabirata
 		ImagePlus im=new ImagePlus("",processed_ip);
 		ImageWindow imgWin=new ImageWindow(im);
 		imgWin.show();
@@ -439,7 +440,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 			}
 		}
 
-		//aggiorno i pixel dell'imageProcessor che verrà visualizzato sulla nuova finestra.
+		//aggiorno i pixel dell'imageProcessor che verr? visualizzato sulla nuova finestra.
 		for(int i=r.y;i<(r.y+r.height);i++)
 		{
 			for(int j=r.x;j<(r.x+r.width);j++)
@@ -539,7 +540,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 					{
 						//if((s-x)>=0 && (s-x)<r.height && (t-y)>=0 && (t-y)<r.width)
 						if((s-x)>=r.y && (s-x)<(r.y+r.height) && (t-y)>=r.x && (t-y)<(r.x+r.width))
-							if( (img[s-x][t-y]&0xff)>0 && se.get(x+raggio,y+raggio)!=0) intersection=true; //mg[s-x][t-y]&0xff)>0 è foreground ; se.get(x+raggio,y+raggio)!=0 è foreground
+							if( (img[s-x][t-y]&0xff)>0 && se.get(x+raggio,y+raggio)!=0) intersection=true; //mg[s-x][t-y]&0xff)>0 ? foreground ; se.get(x+raggio,y+raggio)!=0 ? foreground
 					}
 				if(intersection)
 					imgOut[s-r.y][t-r.x]=(byte)255;
@@ -593,7 +594,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 					{
 						if((s+x)>=r.y && (s+x)<(r.y+r.height) && (t+y)>=r.x && (t+y)<(r.x+r.width))
 						{
-							if(  se.get(x+raggio,y+raggio)!=0 && (img[s+x][t+y]&0xff)<250 ) contained=false; //metto <250 e non !=255 perche alcune immagini sebbene a 2 livelli possono avere ad es tutti 254 aql posto di 255...;se.get(x+raggio,y+raggio)!=0 è foreground; (img[s+x][t+y]&0xff)<250 è background
+							if(  se.get(x+raggio,y+raggio)!=0 && (img[s+x][t+y]&0xff)<250 ) contained=false; //metto <250 e non !=255 perche alcune immagini sebbene a 2 livelli possono avere ad es tutti 254 aql posto di 255...;se.get(x+raggio,y+raggio)!=0 ? foreground; (img[s+x][t+y]&0xff)<250 ? background
 						}
 						else contained=false;
 					}
@@ -643,7 +644,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 	public void boundaryExtraction(byte[] pixels,ImageProcessor ip ,StructuringElement se)
 	{
 		byte[] pixelsIniziali=new byte[pixels.length];
-		//salvo l'immagine di partenza che mi servirà poi per la differenza.
+		//salvo l'immagine di partenza che mi servir? poi per la differenza.
 		for(int i=0;i<pixels.length;i++)
 			pixelsIniziali[i]=pixels[i];
 		int imgWidth=imp.getWidth();
@@ -731,7 +732,7 @@ public class Morphology_ extends PlugInFrame implements ActionListener, ChangeLi
 	{
 		int imgWidth=imp.getWidth();
 		int imgHeight=imp.getHeight();
-		//salvo l'immagine di partenza che mi servirà poi per la differenza.
+		//salvo l'immagine di partenza che mi servir? poi per la differenza.
 		byte[] pixels2=new byte[pixels.length];
 		for(int i=0;i<pixels.length;i++)
 			pixels2[i]=pixels[i];
@@ -794,7 +795,7 @@ class StructuringElement
 	void createCircularMask()
 	{
 		int radius=diameter/2;
-		int r2=radius*radius+1;//aggiungo 1 per ottenere una forma che sia più simile ad un cerchio e non ad un rombo.
+		int r2=radius*radius+1;//aggiungo 1 per ottenere una forma che sia pi? simile ad un cerchio e non ad un rombo.
 		int x0=radius;//origine del cerchio
 		int y0=radius;//origine del cerchio
 		for(int i=0;i<diameter;i++)
@@ -975,7 +976,7 @@ class DrawPanel extends JPanel implements MouseListener
 	private int baseRect;//base dei rettangolini interni
 	private int base;//base del rettangolo contenitore
 	private int[][] matrix;
-	boolean enable;// è true quando è l'utente dopo aver cliccato su "drawStructuraElement" disegna lìelemento strutturale.
+	boolean enable;// ? true quando ? l'utente dopo aver cliccato su "drawStructuraElement" disegna l?elemento strutturale.
 	private Color color=Color.white;
 	private int grayValue=255;
 	public DrawPanel(int size,int[][]shape)

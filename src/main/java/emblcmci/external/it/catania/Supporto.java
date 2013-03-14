@@ -1,3 +1,4 @@
+package emblcmci.external.it.catania;
 
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
@@ -81,8 +82,8 @@ public class Supporto
         * @param window numero di righi e colonne della matrice gaussiana. Deve essere dispari
         * @param sigma 
         * @return array della gaussiana
-        * @throws IllegalArgumentException se la finestra è negativa, zero o pari.
-        *                                  se sigma è zero o negativa.
+        * @throws IllegalArgumentException se la finestra ? negativa, zero o pari.
+        *                                  se sigma ? zero o negativa.
         */
        public static float[] initGaussianKernel(int window, float sigma) throws IllegalArgumentException
        {
@@ -110,8 +111,8 @@ public class Supporto
         * controllo dei valori della gaussiana
         * @param window la finestra della gaussiana.
         * @param sigma il valore di sigma della gaussiana
-        * @throws IllegalArgumentException se la finestra è negativa, zero o non è dispari.
-        *                                  se sigma è zero o negativa.
+        * @throws IllegalArgumentException se la finestra ? negativa, zero o non ? dispari.
+        *                                  se sigma ? zero o negativa.
         */
        private static void controlInput(int window,float sigma)throws IllegalArgumentException
        {
