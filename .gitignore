@@ -4,3 +4,6 @@
 .settings/
 bin/
 .DS_Store
+target/
+*.swp
+.DS_Store
