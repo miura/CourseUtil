@@ -7,14 +7,15 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>1.19</version>
+		<version>1.28</version>
 	</parent>
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
+  <version>1.0.0</version>
 
-	<name>plugins/EMBL_sampleimages.jar</name>
-	<description></description>
+	<name>plugins/EMBL_sampleimages</name>
+	<description>Sample image loader for courses</description>
 
 	<dependencies>
 		<dependency>
@@ -23,44 +24,33 @@
 			<version>${imagej1.version}</version>
 		</dependency>
 	</dependencies>
-	<!-- coping to the local directory -->
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.5.1</version>
-				<executions>
-					<execution>
-						<id>copy-installed</id>
-						<phase>install</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>${project.groupId}</groupId>
-									<artifactId>${project.artifactId}</artifactId>
-									<version>${project.version}</version>
-									<type>${project.packaging}</type>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${project.build.directory}/../../imagej/plugins</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+
+	<developers>
+		<developer>
+			<id>kota</id>
+			<name>Kota Miura</name>
+			<email>miura@embl.de</email>
+      <url>http://cmci.embl.de</url>
+			<organization>EMBL Heidleberg</organization>
+			<organizationUrl>http://www.embl.de/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+  </developers>
+
 	<!-- NB: for project parent -->
 	<repositories>
 		<repository>
 			<id>imagej.releases</id>
 			<url>http://maven.imagej.net/content/repositories/releases</url>
-		</repository>
+    </repository>
+		<repository>
+			<id>imagej.snapshots</id>
+			<url>http://maven.imagej.net/content/repositories/snapshots</url>
+		</repository>    
 	</repositories>
 
 </project>
