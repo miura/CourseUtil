@@ -6,3 +6,5 @@ bin/
 .DS_Store
 *.swp
 .DS_Store
+target/classes/*
+target/maven-archiver/*
