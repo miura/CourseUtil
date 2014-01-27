@@ -4,6 +4,9 @@
 .settings/
 bin/
 .DS_Store
-target/
+target/classes/
+target/generated-sources/
+target/maven-archiver/
+target/surefire/
 *.swp
 .DS_Store
