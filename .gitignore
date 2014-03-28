@@ -10,3 +10,4 @@ target/maven-archiver/
 target/surefire/
 *.swp
 .DS_Store
+/target

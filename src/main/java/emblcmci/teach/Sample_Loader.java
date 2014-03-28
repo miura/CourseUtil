@@ -44,13 +44,24 @@ public class Sample_Loader implements PlugIn{
 	}
 	public void showAbout() {
 		IJ.showMessage("Sample Images Plugin",
-				"EMBL Course Sample Images (2012-05-30) \n" +
-				"Kota Miura\n" +
-				"\n" +
-				"Collection of Sample Images for use in practical courses\n" +
-				"For more information, visit course section in\n" +
-				"\n" +
-				"http://cmci.embl.de"	
+        "<html>" +
+				"<b>EMBL Course Sample Images (2014-03-27) </b><br>" +
+				"Kota Miura<br>" +
+        "<a href=\"http://cmci.embl.de\">CMCI, EMBL</a><br>" +
+				"<br>" +
+				"A collection of Sample Images for use in practical courses.<br>" +
+				"<br>" +
+				"<b>FISH2D.tif</b><br>" +
+        "... kindly provided by Edouard Bertrand & Florian Mueller<br>" +
+        "... The original 3D stack could be downloaded from the following site:<br>" +
+        "... <a href=\"https://code.google.com/p/fish-quant/\">FISH-quant</a><br>" +
+        "<br>" +
+        "<b>NPC (Nuclear Pore Complex) images</b><br>" + 
+        "... kindly provided by Andrea Boni<br>" +
+				"<br>" +
+				"For more information, visit course section in<br>" +
+				"<br>" +
+				"<a href'http://cmci.embl.de'>cmci.embl.de</a>"	
 			);
 	}
 }
