@@ -58,6 +58,9 @@ public class Sample_Loader implements PlugIn{
         "<br>" +
         "<b>NPC (Nuclear Pore Complex) images</b><br>" + 
         "... kindly provided by Andrea Boni<br>" +
+        "<br>" +
+        "<b>centrosomes.lsm</b><br>" + 
+        "... kindly provided by Mayumi Isokane<br>" +
 				"<br>" +
 				"For more information, visit course section in<br>" +
 				"<br>" +
