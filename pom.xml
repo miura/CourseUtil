@@ -12,7 +12,7 @@
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 
 	<name>plugins/EMBL_sampleimages</name>
 	<description>Sample image loader for courses</description>
