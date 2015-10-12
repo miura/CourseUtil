@@ -61,6 +61,10 @@ public class Sample_Loader implements PlugIn{
         "<br>" +
         "<b>centrosomes.lsm</b><br>" + 
         "... kindly provided by Mayumi Isokane<br>" +
+        "<br>" +
+        "<b>invitro.tif</b><br>" + 
+        "... kindly provided by Thomas Surray<br>" +
+        "... For more details, see Bieling P, et al: Nature (2007) 450: 1100-1105<br>" +
 				"<br>" +
 				"For more information, visit course section in<br>" +
 				"<br>" +
