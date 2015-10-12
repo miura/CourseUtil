@@ -5,14 +5,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>1.28</version>
+		<!--<groupId>org.scijava</groupId>-->
+		<!--<artifactId>pom-scijava</artifactId>-->
+		<!--<version>8.3.0</version>-->
+		<groupId>net.imagej</groupId>
+		<artifactId>pom-imagej</artifactId>
+		<version>7.0.0</version>
+		<relativePath />		
 	</parent>
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 
 	<name>plugins/EMBL_sampleimages</name>
 	<description>Sample image loader for courses</description>
@@ -21,7 +25,7 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>${imagej1.version}</version>
+			<!--<version>${imagej1.version}</version>-->
 		</dependency>
 	</dependencies>
 
@@ -40,18 +44,23 @@
 			<timezone>+1</timezone>
 		</developer>
   </developers>
-
+   <!-- <scm>-->
+		<!--<connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>-->
+		<!--<developerConnection>scm:git:git@github.com:imagej/minimal-ij1-plugin</developerConnection>-->
+		<!--<tag>HEAD</tag>-->
+		<!--<url>https://github.com/imagej/minimal-ij1-plugin</url>-->
+	<!--</scm>-->
 	<!-- NB: for project parent -->
-	<repositories>
-		<repository>
-			<id>imagej.releases</id>
-			<url>http://maven.imagej.net/content/repositories/releases</url>
-    </repository>
-		<repository>
-			<id>imagej.snapshots</id>
-			<url>http://maven.imagej.net/content/repositories/snapshots</url>
-		</repository>    
-	</repositories>
+   <!-- <repositories>-->
+		<!--<repository>-->
+			<!--<id>imagej.releases</id>-->
+			<!--<url>http://maven.imagej.net/content/repositories/releases</url>-->
+    <!--</repository>-->
+		<!--<repository>-->
+			<!--<id>imagej.snapshots</id>-->
+			<!--<url>http://maven.imagej.net/content/repositories/snapshots</url>-->
+		<!--</repository>    -->
+	<!--</repositories>-->
 
 </project>
 
