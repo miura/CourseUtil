@@ -16,7 +16,7 @@
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
 
 	<name>plugins/EMBL_sampleimages</name>
 	<description>Sample image loader for courses</description>
