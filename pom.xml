@@ -16,7 +16,7 @@
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
 
 	<name>plugins/EMBL_sampleimages</name>
 	<description>Sample image loader for courses</description>
@@ -33,10 +33,8 @@
 		<developer>
 			<id>kota</id>
 			<name>Kota Miura</name>
-			<email>miura@embl.de</email>
-      <url>http://cmci.embl.de</url>
-			<organization>EMBL Heidleberg</organization>
-			<organizationUrl>http://www.embl.de/</organizationUrl>
+			<email>kotapub@gmail.com</email>
+      <url>http://wiki.cmci.info</url>
 			<roles>
 				<role>architect</role>
 				<role>developer</role>
