@@ -1,27 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<!--<groupId>org.scijava</groupId>-->
-		<!--<artifactId>pom-scijava</artifactId>-->
-		<!--<version>8.3.0</version>-->
-		<groupId>net.imagej</groupId>
-		<artifactId>pom-imagej</artifactId>
-		<version>7.0.0</version>
-		<relativePath />		
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>33.2.0</version>
+		<!--<groupId>net.imagej</groupId>-->
+		<!--<artifactId>pom-imagej</artifactId>-->
+		<!--<version>33.2.0</version>-->
+		<!--<relativePath />		-->
 	</parent>
 
 	<groupId>de.embl.cmci</groupId>
 	<artifactId>EMBL_sampleimages</artifactId>
-  <version>1.0.7</version>
-
+	<version>1.0.8</version>
 	<name>plugins/EMBL_sampleimages</name>
 	<description>Sample image loader for courses</description>
 
+	<repositories>
+		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+	</repositories>	
 	<dependencies>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-common</artifactId>
+		</dependency>		
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
@@ -34,31 +43,55 @@
 			<id>kota</id>
 			<name>Kota Miura</name>
 			<email>kotapub@gmail.com</email>
-      <url>http://wiki.cmci.info</url>
+			<url>http://wiki.cmci.info</url>
 			<roles>
 				<role>architect</role>
 				<role>developer</role>
 			</roles>
 			<timezone>+1</timezone>
 		</developer>
-  </developers>
-   <!-- <scm>-->
-		<!--<connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>-->
-		<!--<developerConnection>scm:git:git@github.com:imagej/minimal-ij1-plugin</developerConnection>-->
-		<!--<tag>HEAD</tag>-->
-		<!--<url>https://github.com/imagej/minimal-ij1-plugin</url>-->
-	<!--</scm>-->
-	<!-- NB: for project parent -->
-   <!-- <repositories>-->
-		<!--<repository>-->
-			<!--<id>imagej.releases</id>-->
-			<!--<url>http://maven.imagej.net/content/repositories/releases</url>-->
-    <!--</repository>-->
-		<!--<repository>-->
-			<!--<id>imagej.snapshots</id>-->
-			<!--<url>http://maven.imagej.net/content/repositories/snapshots</url>-->
-		<!--</repository>    -->
-	<!--</repositories>-->
+	</developers>
+	<mailingLists>
+		<mailingList>
+			<name>Image.sc Forum</name>
+			<archive>https://forum.image.sc/tags/fiji</archive>
+		</mailingList>
+	</mailingLists>
 
+	<scm>
+		<connection>scm:git:https://github.com/miura/CourseUtil</connection>
+		<developerConnection>scm:git:git@github.com:miura/CourseUtil</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/miura/CourseUtil</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/miura/CourseUtil/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>GitHub Actions</system>
+		<url>https://github.com/miura/CourseUtil/actions</url>
+	</ciManagement>	
+	<properties>
+		<enforcer.skip>true</enforcer.skip>
+	</properties>
 </project>
+		<!-- <scm>-->
+			<!--<connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>-->
+			<!--<developerConnection>scm:git:git@github.com:imagej/minimal-ij1-plugin</developerConnection>-->
+			<!--<tag>HEAD</tag>-->
+			<!--<url>https://github.com/imagej/minimal-ij1-plugin</url>-->
+			<!--</scm>-->
+			<!-- NB: for project parent -->
+			<!-- <repositories>-->
+				<!--<repository>-->
+					<!--<id>imagej.releases</id>-->
+					<!--<url>http://maven.imagej.net/content/repositories/releases</url>-->
+					<!--</repository>-->
+					<!--<repository>-->
+						<!--<id>imagej.snapshots</id>-->
+						<!--<url>http://maven.imagej.net/content/repositories/snapshots</url>-->
+						<!--</repository>    -->
+						<!--</repositories>-->
+
 
