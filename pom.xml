@@ -7,9 +7,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>43.0.0</version>
-    	<type>pom</type>
-    	<scope>compile</scope>		
+		<version>43.0.0</version>	
 		<!--<groupId>net.imagej</groupId>-->
 		<!--<artifactId>pom-imagej</artifactId>-->
 		<!--<version>33.2.0</version>-->
