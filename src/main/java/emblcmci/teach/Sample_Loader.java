@@ -45,13 +45,13 @@ public class Sample_Loader implements PlugIn{
 	public void showAbout() {
 		IJ.showMessage("Sample Images Plugin",
         "<html>" +
-				"<b>EMBL Course Sample Images (2014-03-27) </b><br>" +
-				"Kota Miura<br>" +
-        "<a href=\"http://cmci.embl.de\">CMCI, EMBL</a><br>" +
-				"<br>" +
-				"A collection of Sample Images for use in practical courses.<br>" +
-				"<br>" +
-				"<b>FISH2D.tif</b><br>" +
+	"<b>EMBL Course Sample Images (since 2014-03-27) </b><br>" +
+	"Kota Miura<br>" +
+        "<a href=\"http://wiki.cmci.info\">Bioimage Analysis & Research</a><br>" +
+	"<br>" +
+	"A collection of Sample Images for use in practical courses.<br>" +
+	"<br>" +
+	"<b>FISH2D.tif</b><br>" +
         "... kindly provided by Edouard Bertrand & Florian Mueller<br>" +
         "... The original 3D stack could be downloaded from the following site:<br>" +
         "... <a href=\"https://code.google.com/p/fish-quant/\">FISH-quant</a><br>" +
@@ -65,10 +65,15 @@ public class Sample_Loader implements PlugIn{
         "<b>invitro.tif</b><br>" + 
         "... kindly provided by Thomas Surray<br>" +
         "... For more details, see Bieling P, et al: Nature (2007) 450: 1100-1105<br>" +
-				"<br>" +
-				"For more information, visit course section in<br>" +
-				"<br>" +
-				"<a href'http://cmci.embl.de'>cmci.embl.de</a>"	
+	"<br>" +
+        "<b>mouse-stemcell.tif</b><br>" + 
+        "... CC-BY-4.0 image dataset kindly provided by Peng et al.<br>" +
+        "... See Peng, T. (2022). Datasets for Background and Shading Correction of Optical Microscopy Images by BaSiC [Data set]. Zenodo.<br>" +
+	"... <a href=\"https://doi.org/10.5281/zenodo.6334810\">https://doi.org/10.5281/zenodo.6334810</a><br>" +
+	"<br>" +
+	"For more information, visit course section in<br>" +
+	"<br>" +
+	"<a href=\"http://wiki.cmci.info\">wiki.cmci.info</a>"	
 			);
 	}
 }
