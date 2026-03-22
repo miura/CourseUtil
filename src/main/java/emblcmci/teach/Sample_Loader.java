@@ -51,26 +51,31 @@ public class Sample_Loader implements PlugIn{
 	"<br>" +
 	"A collection of Sample Images for use in practical courses.<br>" +
 	"<br>" +
+	"<b>BBBC024c1n0_crop.tif</b><br>" + 
+        "... image-final_0000.tif from BBBC024_v1_c00_lowSNR_images was cropped. <br>" +
+		"... From The image set BBBC024vl, <a href=\\\"https://bbbc.broadinstitute.org/BBBC024\\\">Broad Bioimage Benchmark Collection</a>.<br>" +
+		"... Svoboda et al. (2009) \"Generation of Digital Phantoms of Cell Nuclei and Simulation of Image Formation in 3D Image Cytometry.\", <a href\"https://pubmed.ncbi.nlm.nih.gov/19291805/\"> DOI: 10.1002/cyto.a.20714</a>]<br>" +
+        "<br>" +	
+	"<b>centrosomes.lsm</b><br>" + 
+        "... kindly provided by Mayumi Isokane<br>" +
+        "<br>" +	
 	"<b>FISH2D.tif</b><br>" +
         "... kindly provided by Edouard Bertrand & Florian Mueller<br>" +
         "... The original 3D stack could be downloaded from the following site:<br>" +
         "... <a href=\"https://code.google.com/p/fish-quant/\">FISH-quant</a><br>" +
         "<br>" +
-        "<b>NPC (Nuclear Pore Complex) images</b><br>" + 
-        "... kindly provided by Andrea Boni<br>" +
-        "<br>" +
-        "<b>centrosomes.lsm</b><br>" + 
-        "... kindly provided by Mayumi Isokane<br>" +
-        "<br>" +
-        "<b>invitro.tif</b><br>" + 
+	"<b>invitro.tif</b><br>" + 
         "... kindly provided by Thomas Surray<br>" +
         "... For more details, see Bieling P, et al: Nature (2007) 450: 1100-1105<br>" +
-	"<br>" +
-        "<b>mouse-stemcell.tif</b><br>" + 
+		"<br>" +		
+	"<b>mouse-stemcell.tif</b><br>" + 
         "... CC-BY-4.0 image dataset kindly provided by Peng et al.<br>" +
         "... See Peng, T. (2022). Datasets for Background and Shading Correction of Optical Microscopy Images by BaSiC [Data set]. Zenodo.<br>" +
-	"... <a href=\"https://doi.org/10.5281/zenodo.6334810\">https://doi.org/10.5281/zenodo.6334810</a><br>" +
-	"<br>" +
+		"... <a href=\"https://doi.org/10.5281/zenodo.6334810\">https://doi.org/10.5281/zenodo.6334810</a><br>" +
+		"<br>" +
+	"<b>NPC (Nuclear Pore Complex) images</b><br>" + 
+        "... kindly provided by Andrea Boni<br>" +
+        "<br>" +		
 	"For more information, visit course section in<br>" +
 	"<br>" +
 	"<a href=\"http://wiki.cmci.info\">wiki.cmci.info</a>"	
