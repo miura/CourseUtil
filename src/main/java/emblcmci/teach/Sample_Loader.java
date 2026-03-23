@@ -53,8 +53,8 @@ public class Sample_Loader implements PlugIn{
 	"<br>" +
 	"<b>BBBC024c1n0_crop.tif</b><br>" + 
         "... image-final_0000.tif from BBBC024_v1_c00_lowSNR_images was cropped. <br>" +
-		"... From The image set BBBC024vl, <a href=\\\"https://bbbc.broadinstitute.org/BBBC024\\\">Broad Bioimage Benchmark Collection</a>.<br>" +
-		"... Svoboda et al. (2009) \"Generation of Digital Phantoms of Cell Nuclei and Simulation of Image Formation in 3D Image Cytometry.\", <a href\"https://pubmed.ncbi.nlm.nih.gov/19291805/\"> DOI: 10.1002/cyto.a.20714</a>]<br>" +
+		"... From The image set BBBC024vl, <a href=\"https://bbbc.broadinstitute.org/BBBC024\">Broad Bioimage Benchmark Collection</a>.<br>" +
+		"... Svoboda et al. (2009) \"Generation of Digital Phantoms of Cell Nuclei and Simulation of Image Formation in 3D Image Cytometry.\", <a href=\"https://pubmed.ncbi.nlm.nih.gov/19291805/\"> DOI: 10.1002/cyto.a.20714</a>]<br>" +
         "<br>" +	
 	"<b>centrosomes.lsm</b><br>" + 
         "... kindly provided by Mayumi Isokane<br>" +
