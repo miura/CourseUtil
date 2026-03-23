@@ -75,7 +75,11 @@ public class Sample_Loader implements PlugIn{
 		"<br>" +
 	"<b>NPC (Nuclear Pore Complex) images</b><br>" + 
         "... kindly provided by Andrea Boni<br>" +
+        "<br>" +
+	"<b>NucleiDAPIConfocal.png</b><br>" + 
+        "... link to the sample image kindly probided by Daniel James White <a href=\"https://imagej.net/imagej-wiki-static/File:NucleiDAPIconfocal.png\">@ ImageJ Wiki<br>" +
         "<br>" +		
+		
 	"For more information, visit course section in<br>" +
 	"<br>" +
 	"<a href=\"http://wiki.cmci.info\">wiki.cmci.info</a>"	
