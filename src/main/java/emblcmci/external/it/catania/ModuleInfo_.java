@@ -38,10 +38,14 @@ public class ModuleInfo_ implements PlugIn {
 			"Prof. Sebastiano Battiato @ Univ. Catania, Italy<br><br>" +
 			"each plugin is available at <br>" +
 			"<a href='http://svg.dmi.unict.it/iplab/imagej/'>http://svg.dmi.unict.it/iplab/imagej/</a><br><br><br>" +
-			"<b>CLAHE (Contrast Limited Adaptive Histogram Equalization)</b><br>" +
+			// "<b>CLAHE (Contrast Limited Adaptive Histogram Equalization)</b><br>" +
+			// "was written by<br>" + 
+			// "Stephan Saalfeld, MPICBG Dresden<br>" +
+			// "available in <a href='http://fiji.sc'>the Fiji site</a>."
+			"<b>Plynomial Surface Fit</b><br>" +
 			"was written by<br>" + 
-			"Stephan Saalfeld, MPICBG Dresden<br>" +
-			"available in <a href='http://fiji.sc'>the Fiji site</a>."
+			"Dwight Urban Bartholomew, L3 Communications Infrared Products<br>" +
+			"available at <a href='https://imagej.net/ij/plugins/polynomial-fit/index.html'>the ImageJ plugin site</a>."			
 			);
 	}
 	//unused

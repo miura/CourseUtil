@@ -11,6 +11,32 @@ import ij.process.ImageStatistics;
 
 import Jama.Matrix;
 
+/********************************************************************************
+ *      This ImageJ plugin calculates a polynomial surface fit of an image.
+ *      It's equivalent to applying a low-spatial-frequency filter to the image.
+ *
+ *      Dependencies:
+ *      1) Requires JAMA.JAR for matrix calculations
+ *
+ *      Input:
+ *      1) Monochrome image.  If the image is a Stack the plugin
+ *         fits the average stack frame.
+ *      2) The User is asked to select the fitting polynomial order:
+ *         currently limited to 0 thru 9th-order.
+ *
+ *      Output:
+ *      1) A new image representing the surface fit
+ *
+ *      Warnings:
+ *      1) Outlier pixels can adversely affect the fit so I recommend
+ *         removing severe outliers prior to using this plugin.
+ *      2) Using too high a fitting polynomial order will lead to poor fitting.
+ * 
+ *      Author = Dwight Urban Bartholomew
+ *               L3 Communications Infrared Products
+ *               February 2014
+ ********************************************************************************/
+
 public class Polynomial_Surface_Fit implements PlugInFilter {
     static int PolyOrderX;
     static int PolyOrderY;
